@@ -12,13 +12,6 @@ const getTemperaments = async (req, res, next) => {
     id: dog.id,
   }));
 
-  // const temperament = dog.map((dog) => dog.temperament);
-  // temperament.sort((a, b) => a.localeCompare(b))
-  // res.json(temperament);
-
-  // bueno...podran cuestionar mis metodos
-  //pero nunca mis resultados
-
   const uniqueTemperaments = {};
   const resultArr = [];
 
@@ -34,10 +27,10 @@ const getTemperaments = async (req, res, next) => {
   const count = await Temperament.count();
   if (count === 0) {
     await Temperament.bulkCreate(resultArr);
-    res.json(resultArr.map((temp) => temp.name));
+    res.json(temps.map((temp) => ({ id: temp.id, name: temp.name })));
   } else {
     const temps = await Temperament.findAll();
-    res.json(temps.map((temp) => temp.name));
+    res.json(temps.map((temp) => ({ id: temp.id, name: temp.name })));
   }
 };
 

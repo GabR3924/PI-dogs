@@ -1,12 +1,12 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, Sequelize } = require('sequelize');
 
 module.exports = (sequelize) => {
   // defino el modelo
   sequelize.define('dog', {
     id: {
-      type:DataTypes.INTEGER,
+      type:DataTypes.UUID,
       primaryKey:true,
-      autoIncrement:true
+      defaultValue: Sequelize.UUIDV4
     },
     name: {
       type: DataTypes.STRING,

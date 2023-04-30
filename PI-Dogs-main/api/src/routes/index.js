@@ -1,5 +1,5 @@
 const { Router } = require("express");
-const { getAllDogs, getDogById, createDog } = require("../controllers/dog.controller.js");
+const { getAllDogs, getDogById, createDog, getDogByName } = require("../controllers/dog.controller.js");
 const  getTemperaments  = require("../controllers/temperament.controller.js");
 // const getDogById = require("../controllers/dog.controller.js")
 // Importar todos los routers;
@@ -14,7 +14,8 @@ router.get("/dogs", getAllDogs);
 
 router.get("/dogs/:idRaza", getDogById);
 
-router.get("/dogs/name?");
+router.get("/dogs/name?q=", getDogByName);
+//no esta funcionando,resolver despues ^
 
 router.post("/dogs", createDog);
 
