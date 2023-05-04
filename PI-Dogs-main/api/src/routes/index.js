@@ -14,8 +14,9 @@ router.get("/dogs", getAllDogs);
 
 router.get("/dogs/:idRaza", getDogById);
 
-router.get("/dogs/name?q=", getDogByName);
-//no esta funcionando,resolver despues ^
+// router.get("/dogs/:name", getAllDogs);
+
+// router.get("/dogs/search-dogs  ", getDogByName);
 
 router.post("/dogs", createDog);
 

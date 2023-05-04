@@ -151,7 +151,7 @@ Tu servidor deberá contar con las siguientes rutas:
 -  Tiene que incluir los datos de los temperamentos asociadas a esta raza.
 -  Debe funcionar tanto para los perros de la API como para los de la base de datos.
 
-#### **📍 GET | /dogs/name?="..."**
+#### **📍 GET | /dogs/name?="..."**ya
 
 -  Esta ruta debe obtener todas aquellas razas de perros que coinciden con el nombre recibido por query. (No es necesario que sea una coincidencia exacta).
 -  Debe poder buscarlo independientemente de mayúsculas o minúsculas.

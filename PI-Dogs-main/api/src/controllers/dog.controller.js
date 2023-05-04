@@ -4,8 +4,8 @@ const { Dog, Temperament } = require("../db.js");
 // const KEY = "4112b5b83f03.904cc4f8ebddc19b6f94";
 // const URL = "https://api.thedogapi.com/v1/breedsi";
 
-
 const getAllDogs = async (req, res, next) => {
+  const { name } = req.query
   try {
     const response = await axios.get("https://api.thedogapi.com/v1/breeds");
     const apiDogs = response.data?.map((dog) => ({
@@ -16,77 +16,121 @@ const getAllDogs = async (req, res, next) => {
       weight: dog.weight,
       life_span: dog.life_span,
       temperament: dog.temperament,
-    }));;
-    
-    const dbDogs = await Dog.findAll()
+    }));
+
+    const dbDogs = await Dog.findAll();
 
     const allDogs = [...apiDogs, ...dbDogs];
 
     allDogs.sort((a, b) => a.name.localeCompare(b.name));
+    if (name) {
+      const dogFilter = allDogs.filter((dog) =>
+        dog.name.toLowerCase().includes(name.toLowerCase())
+      );
+      if (dogFilter.length > 0) {
+        res.json({ dogs: dogFilter });
+      }
+    } else {
+      res.json({ dogs: allDogs });
+    }
 
-
-    res.status(200).json({ dogs: allDogs });
   } catch (error) {
     next(error);
   }
 };
 
 const getDogById = async (req, res, next) => {
-  const { idRaza } = req.params
+  const { idRaza } = req.params;
+  console.log(idRaza);
 
   try {
-    // Buscamos el perro en la base de datos utilizando el UUID
-    const dog = await Dog.findByPk(idRaza);
-    if (dog) {
-      // Si encontramos el perro en la base de datos, lo devolvemos
-      res.status(200).json(dog)
+    const uuidRegex =
+      /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+    const isValidUuid = uuidRegex.test(idRaza);
+
+    if (isValidUuid) {
+      // idRaza is a valid UUID, so we can use it to search the database
+      const dog = await Dog.findByPk(idRaza);
+      if (dog) {
+        // If we find the dog in the database, we return it
+      } else {
+        // If we don't find the dog in the database, we search the external API
+        const response = await axios.get(
+          `https://api.thedogapi.com/v1/breeds/${idRaza}`
+        );
+        const apiData = response.data;
+        if (apiData) {
+          // If we find the dog in the external API, we return it
+          res.status(200).json({ data: apiData });
+        } else {
+          // If we don't find the dog in either the database or the external API, we return an error
+          throw new Error("No se encontró el perro");
+        }
+      }
     } else {
-      // Si no encontramos el perro en la base de datos, buscamos en la API
-      const response = await axios.get(`https://api.thedogapi.com/v1/breeds/${idRaza}`);
+      // idRaza is not a valid UUID, so we search the external API directly
+      const response = await axios.get(
+        `https://api.thedogapi.com/v1/breeds/${idRaza}`
+      );
       const apiData = response.data;
       if (apiData) {
-        // Si encontramos el perro en la API, lo devolvemos
-        res.status(200).json({ data: apiData })
+        // If we find the dog in the external API, we return it
+        res.status(200).json({ data: apiData });
       } else {
-        // Si no encontramos el perro ni en la base de datos ni en la API, devolvemos un error
-        throw new Error('No se encontró el perro');
+        // If we don't find the dog in either the database or the external API, we return an error
+        throw new Error("No se encontró el perro");
       }
     }
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
 
+// const getDogByName = async (req, res, next) => {
+//     let misperros = await Dog.findAll()
+//     let misperrosParse = []    
+//     for (let i = 0; i < misperros.length; i++) {
+//         let perrito = misperros[i];
+//         let temperaments = await perrito.getTemperaments() 
+//         perrito = perrito.dataValues;
+//         temperaments = temperaments.map((el) => el.dataValues.name)
+//         perrito.temperament = temperaments.toString()
+//         misperrosParse.push(perrito)
+//     }
+//     axios.get(`https://api.thedogapi.com/v1/breeds`)
+//         .then(respuesta => {
+//             let resultado = [...misperrosParse, ...respuesta.data].filter((el) => 
+//                 el.name.toLowerCase().includes(req.query.name.toLowerCase()))
+//             if (resultado.length === 0) {
+//                 res.send([])
+//             }
+//             if(resultado.length > 0 && resultado.length < 9) {
+//                 res.send(resultado)
+//             }
+//             else if(resultado.length > 8) {
+//                 let nuevoarray = resultado.slice(0, 8)
+//                 res.send(nuevoarray)
+//             } 
+//             res.end()
+//         })        
+//         .catch(error => {
+//             console.log(error)
 
-const getDogByName = async (req, res, next) => {
-  // console.log('hola');
-  // const dogName = req.query.q;
-  // console.log('dogName:', dogName);
-  // if (!dogName) {
-  //   res.status(400).send('Missing dog name');
-  //   return;
-  // }
+//         })
+// };
 
-  // // Search the API
-  // const apiResponse = await axios.get(`https://api.thedogapi.com/v1/breeds/search?q=${dogName}`);
-  // const apiDog = apiResponse.data;
-
-  // // Search the database
-  // // Replace this with your own database query
-  // const dbDog = await Dog.find({name: new RegExp(dogName, 'i')}); // Example: await BreedModel.find({) name: new RegExp(breedName, 'i') });
-
-  // // Combine and return the results
-  // const dogs = [...apiDog, ...dbDog];
-  // if (dogs.length === 0) {
-  //   res.status(404).send('Dog not found');
-  //   return;
-  // }
-  res.json("hola");
-
- };
 
 const createDog = async (req, res, next) => {
-  const { name, height_min, height_max, weight_min, weight_max, life_span, imagen, temperaments } = req.body
+  const {
+    name,
+    height_min,
+    height_max,
+    weight_min,
+    weight_max,
+    life_span,
+    imagen,
+    temperaments,
+  } = req.body;
 
   try {
     const newDog = await Dog.create({
@@ -96,34 +140,35 @@ const createDog = async (req, res, next) => {
       weight_min,
       weight_max,
       life_span,
-      imagen
-    })
+      imagen,
+    });
 
     if (temperaments) {
       // Verificamos que los ID de los temperamentos son válidos
       const validTemperaments = await Temperament.findAll({
-        where: { id: temperaments }
+        where: { id: temperaments },
       });
       if (validTemperaments.length !== temperaments.length) {
-        throw new Error('Algunos de los temperamentos especificados no existen en la base de datos');
+        throw new Error(
+          "Algunos de los temperamentos especificados no existen en la base de datos"
+        );
       }
       await newDog.addTemperaments(temperaments);
     }
 
     const dogWithTemperaments = await Dog.findByPk(newDog.id, {
-      include: Temperament
+      include: Temperament,
     });
 
-    res.json(dogWithTemperaments)
+    res.json(dogWithTemperaments);
   } catch (error) {
-    next(error)
+    next(error);
   }
 };
-
 
 module.exports = {
   getAllDogs,
   getDogById,
-  getDogByName,
-  createDog
+  // getDogByName,
+  createDog,
 };
