@@ -1,9 +1,10 @@
 .nav{
-    background-color: blueviolet;
+    background: transparent;
     display: flex;
     align-items: center;
     justify-content: space-between;
     padding: 0 3rem;
+    /* position: absolute; */
 }
 
 .list{

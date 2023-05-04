@@ -1,0 +1,14 @@
+.section{
+    height: 100%;
+    width: 100%;
+    background: transparent;
+    background-image: url(../imgs/pets-3715733_1920.jpg);
+    background-position: bottom;
+    /* overflow-x: none ; */
+}
+
+.hero{
+    height: 120vh;
+    display: flex;
+    margin-top: 0;
+}
