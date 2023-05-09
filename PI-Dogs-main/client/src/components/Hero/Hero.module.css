@@ -2,8 +2,10 @@
     height: 100%;
     width: 100%;
     background: transparent;
-    background-image: url(../imgs/pets-3715733_1920.jpg);
-    background-position: bottom;
+    background-image: url(../imgs/pets.jpg);
+    background-position: top;
+    background-repeat: no-repeat;
+    background-size: contain;
     /* overflow-x: none ; */
 }
 
